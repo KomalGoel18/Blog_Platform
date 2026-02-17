@@ -1,10 +1,34 @@
 [
   {
     "id": 1,
-    "title": "Test Post",
-    "content": "Test Content",
-    "author": "Tester",
-    "createdAt": "2026-01-24T21:55:39.957Z",
-    "updatedAt": "2026-01-24T21:55:39.957Z"
+    "title": "Krishn",
+    "content": "abcd",
+    "author": "Anonymous",
+    "createdAt": "2026-01-25T13:07:11.440Z",
+    "updatedAt": "2026-01-25T13:07:11.440Z"
+  },
+  {
+    "id": 2,
+    "title": "1234",
+    "content": "abcd",
+    "author": "Anonymous",
+    "createdAt": "2026-01-25T13:42:46.606Z",
+    "updatedAt": "2026-01-25T13:42:46.606Z"
+  },
+  {
+    "id": 3,
+    "title": "1",
+    "content": "a",
+    "author": "Anonymous",
+    "createdAt": "2026-01-25T13:49:42.824Z",
+    "updatedAt": "2026-01-25T13:49:42.824Z"
+  },
+  {
+    "id": 4,
+    "title": "123",
+    "content": "nnnn",
+    "author": "Govind",
+    "createdAt": "2026-01-25T13:50:03.478Z",
+    "updatedAt": "2026-01-25T13:50:03.478Z"
   }
 ]

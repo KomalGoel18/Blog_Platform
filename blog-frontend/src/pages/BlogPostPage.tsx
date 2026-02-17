@@ -103,44 +103,39 @@ export function BlogPostPage() {
         </button>
 
         <div className="bg-white rounded-lg shadow-sm p-8">
-          <div className="flex justify-between items-start mb-6">
-            <div className="text-sm text-gray-500">
-              Dashboard / Engineering / API Architectures
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => navigate(`/edit/${post.id}`)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <Edit className="w-4 h-4" />
-                Edit
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-            </div>
-          </div>
+          <div className="flex items-start justify-between gap-4 mb-6">
+  {/* Title */}
+  <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+    {post.title}
+  </h1>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            {post.title}
-          </h1>
+  {/* Actions */}
+  <div className="flex gap-2 shrink-0">
+    <button
+      onClick={() => navigate(`/edit/${post.id}`)}
+      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+    >
+      <Edit className="w-4 h-4" />
+      Edit
+    </button>
 
-          <p className="text-lg text-gray-600 italic mb-8">
-            Exploring the nuances of REST, GraphQL, and beyond for high-performance
-            frontend delivery.
-          </p>
+    <button
+      onClick={handleDelete}
+      disabled={deleting}
+      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+    >
+      <Trash2 className="w-4 h-4" />
+      Delete
+    </button>
+  </div>
+</div>
 
           <div className="flex items-center gap-4 mb-8 pb-8 border-b">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full"></div>
             <div>
               <div className="font-semibold text-gray-900">{post.author}</div>
               <div className="text-sm text-gray-500">
-                Senior Architect at TechFlow • {formatDate(post.createdAt)}
+                {formatDate(post.createdAt)}
               </div>
             </div>
             <div className="ml-auto flex gap-2">

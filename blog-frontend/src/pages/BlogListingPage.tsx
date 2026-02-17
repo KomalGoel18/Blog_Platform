@@ -1,35 +1,48 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ApiService } from '../services/api';
 import type { BlogPost } from '../types';
 import { SkeletonCard } from '../components/SkeletonCard';
-import { EmptyState } from '../components/EmptyState';
 import { ErrorState } from '../components/ErrorState';
+import { PostCard } from '../components/PostCard';
+import { EmptyState } from '../components/EmptyState';
+
+const PAGE_SIZE = 9;
 
 export function BlogListingPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const page = Number(searchParams.get('page') || 1);
-  const limit = Number(searchParams.get('limit') || 10);
   const search = searchParams.get('search') || '';
   const author = searchParams.get('author') || '';
 
-  const [searchInput, setSearchInput] = useState(search);
-  const [authorInput, setAuthorInput] = useState(author);
+  const [allPosts, setAllPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch ALL posts once
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await ApiService.getPosts({ page, limit, search, author });
-        setPosts(data);
+
+        const data = await ApiService.getPosts({
+          page: 1,
+          limit: 1000, // large enough to cover all
+          search,
+          author,
+        });
+
+        const sorted = [...data].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+        );
+
+        setAllPosts(sorted);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load posts');
       } finally {
@@ -38,110 +51,87 @@ export function BlogListingPage() {
     };
 
     fetchPosts();
-  }, [page, limit, search, author]);
+  }, [search, author]);
 
-  const updateParam = (key: string, value?: string) => {
+  const totalPages = Math.ceil(allPosts.length / PAGE_SIZE);
+
+  // Slice posts for current page
+  const visiblePosts = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return allPosts.slice(start, end);
+  }, [allPosts, page]);
+
+  const setPage = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
-    value ? params.set(key, value) : params.delete(key);
-    params.set('page', '1');
+    params.set('page', String(newPage));
     setSearchParams(params);
   };
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-8">
-        {[...Array(limit)].map((_, i) => <SkeletonCard key={i} />)}
+      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(PAGE_SIZE)].map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
       </div>
     );
   }
 
   if (error) {
-    return <ErrorState error={error} onRetry={() => setSearchParams(searchParams)} />;
-  }
-
-  if (posts.length === 0 && !search && !author) {
-    return <EmptyState />;
+    return <ErrorState error={error} onRetry={() => setPage(page)} />;
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between mb-6">
-        <h1 className="text-3xl font-bold">Blog Posts</h1>
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Blog Posts</h1>
+        </div>
         <button
           onClick={() => navigate('/create')}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg"
         >
           + Create Post
         </button>
       </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          updateParam('search', searchInput);
-        }}
-        className="flex gap-2 mb-6"
-      >
-        <input
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search by title"
-          className="border px-3 py-2 rounded w-full"
-        />
-        <input
-          value={authorInput}
-          onChange={(e) => setAuthorInput(e.target.value)}
-          placeholder="Filter by author"
-          className="border px-3 py-2 rounded w-64"
-        />
-        <button
-          type="button"
-          onClick={() => updateParam('author', authorInput)}
-          className="border px-4 py-2 rounded"
-        >
-          Apply
-        </button>
-      </form>
-
-      {posts.length === 0 ? (
-        <p className="text-gray-500 text-center">No posts found.</p>
+      {/* Content */}
+      {visiblePosts.length === 0 ? (
+        <div className="mt-20">
+          <EmptyState />
+        </div>
       ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
-              <div
-                key={post.id}
-                onClick={() => navigate(`/posts/${post.id}`)}
-                className="border rounded p-4 cursor-pointer hover:shadow"
-              >
-                <h3 className="font-bold text-lg mb-2">{post.title}</h3>
-                <p className="text-sm text-gray-600 mb-2">
-                  {post.content.slice(0, 120)}...
-                </p>
-                <div className="text-xs text-gray-500">
-                  {post.author} • {new Date(post.createdAt).toLocaleDateString()}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-between mt-8">
-            <button
-              disabled={page === 1}
-              onClick={() => updateParam('page', String(page - 1))}
-              className="px-4 py-2 border rounded disabled:opacity-50"
-            >
-              <ChevronLeft />
-            </button>
-            <button
-              onClick={() => updateParam('page', String(page + 1))}
-              className="px-4 py-2 border rounded"
-            >
-              <ChevronRight />
-            </button>
-          </div>
-        </>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {visiblePosts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
       )}
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-6 mt-12">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="p-2 border rounded disabled:opacity-40"
+  >
+    <ChevronLeft />
+  </button>
+
+  <span className="text-sm font-medium">
+    Page {page} of {totalPages || 1}
+  </span>
+
+  <button
+    disabled={page === totalPages || totalPages === 0}
+    onClick={() => setPage(page + 1)}
+    className="p-2 border rounded disabled:opacity-40"
+  >
+    <ChevronRight />
+  </button>
+</div>
     </div>
   );
 }
