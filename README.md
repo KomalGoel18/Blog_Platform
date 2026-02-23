@@ -155,5 +155,3 @@ Base URL: `/api/auth`
 - Posts are stored in `blog-api/data/posts.json`.
 - Users are stored in `blog-api/data/users.json`.
 - Both are simple JSON files manipulated through the services and storage utilities.
-
->>>>>>> d743a9f (Added README)
