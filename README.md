@@ -1,207 +1,159 @@
 ## Blog Platform
 
-A full-stack blog management platform with a TypeScript/Express API and a React + Vite + Tailwind frontend. It lets you create, list, view, edit, and delete blog posts, with a dashboard-style UI and a basic JWT authentication flow that is being wired in.
+A modern full‑stack blog platform consisting of a React/Vite frontend and a Node.js/Express TypeScript API.  
+It supports creating, editing and deleting posts, basic analytics, and lightweight authentication backed by JSON files.
 
----
+### Features
 
-## Tech Stack
+- **Dashboard overview**
+  - Total posts and unique authors
+  - Latest activity based on recent posts
+- **Blog management**
+  - Create, read, update and delete blog posts
+  - Paginated listing (with client‑side paging)
+  - Sorting by creation date (newest first)
+- **Auth (simple demo implementation)**
+  - Sign up and login via email/password
+  - User data stored in a local JSON file
+  - Session persisted on the frontend via `localStorage`
+- **Modern UI**
+  - React 18 + Vite + TypeScript + Tailwind CSS
+  - Responsive layout with dashboard, listing, detail and form pages
+- **API layer**
+  - REST endpoints for posts (`/api/posts`)
+  - REST endpoints for auth (`/api/auth`)
+  - File‑based JSON storage for both posts and users
 
-- **Backend**
-  - Node.js, **Express 5** with **TypeScript**
-  - In-memory / JSON-file data store for posts and users
-  - JSON Web Tokens (**JWT**) for authentication
-  - Jest + Supertest for testing
+### Project structure
+
+```text
+blog-frontend/   React + Vite + TypeScript SPA for the admin/dashboard UI
+blog-api/        Node.js + Express + TypeScript API (file-based JSON storage)
+```
+
+- **`blog-frontend`**
+  - `src/pages` – route pages (dashboard, listing, post detail, post form, login/signup, etc.)
+  - `src/components` – reusable UI components (cards, skeletons, empty/error states, header, layout, etc.)
+  - `src/context` – auth context with `localStorage` persistence
+  - `src/services/api.ts` – client for the posts API (`/api/posts`)
+  - `vite.config.ts` – Vite configuration, including dev‑time proxy to the API
+- **`blog-api`**
+  - `src/server.ts` – starts the HTTP server on port `3000` and mounts routes
+  - `src/app.ts` – Express app configuration and post routes under `/api/posts`
+  - `src/routes` – Express routers for posts and auth
+  - `src/controllers` – request/response handling (mapping HTTP to services)
+  - `src/services` – post and auth business logic
+  - `src/models` – TypeScript interfaces for posts
+  - `src/storage` – file‑based storage utilities (JSON files under `data/`)
+  - `data/posts.json`, `data/users.json` – on‑disk storage for posts and users
+
+### Tech stack
 
 - **Frontend**
-  - **React 18** + **Vite 5** + **TypeScript**
-  - **React Router** for routing
-  - **Tailwind CSS** for styling
-  - `lucide-react` for icons
-
----
-
-## Project Structure
-
-- **`blog-api/`** – Express API for posts and auth
-  - `src/app.ts` – Express app setup, JSON middleware, mounts post routes and error middleware
-  - `src/server.ts` – Starts the HTTP server on port `3000`, mounts `/api/auth` routes
-  - `src/routes/post.routes.ts` – RESTful routes under `/api/posts`
-  - `src/auth/auth.routes.ts` – Auth routes under `/api/auth` (`POST /signup`, `POST /login`)
-  - `src/utils/jwt.ts` – JWT sign/verify helpers
-  - `data/posts.json` – JSON “database” for blog posts
-  - `data/users.json` – JSON “database” for user accounts
-
-- **`blog-frontend/`** – React dashboard-style client
-  - `src/main.tsx` – React entrypoint, wraps `App` with `AuthProvider`
-  - `src/App.tsx` – Declares routes (public auth pages + protected app)
-  - `src/context/AuthContext.tsx` – Simple auth context with localStorage persistence
-  - `src/layouts/ProtectedLayout.tsx` – Guards routes that require authentication and renders `Header`
-  - `src/components/Header.tsx` – Top navigation, search, notifications, and user menu
-  - `src/components/PostCard.tsx`, `EmptyState.tsx`, `SkeletonCard.tsx`, `ErrorState.tsx` – UI building blocks for posts and API states
-  - `src/pages/` – Main screens:
-    - `DashboardPage.tsx` – High-level stats (total posts, authors, last activity)
-    - `BlogListingPage.tsx` – Paginated post listing, search, create button
-    - `BlogPostPage.tsx` – Detailed view of a single post with edit/delete actions
-    - `PostFormPage.tsx` – Create/edit post form (wired to the posts API)
-    - `AnalyticsPage.tsx` – Placeholder for analytics
-    - `SettingsPage.tsx` – Placeholder for account/settings
-    - `LoginPage.tsx`, `SignupPage.tsx`, `ResetPasswordPage.tsx` – Auth-related forms/flows (UI mostly; wiring to API in progress)
-  - `src/services/api.ts` – Client for `/api/posts` (list, get, create, update, delete)
-  - `src/services/auth.ts` – Client for `/api/auth` (`signup`, `login`) using `VITE_API_BASE_URL`
-  - `vite.config.ts` – Vite dev server config with a proxy for `/api` to `http://localhost:3000`
-
----
-
-## Features
-
-- **Blog posts**
-  - List all posts with pagination, search, and author filtering
-  - View post details with rich layout and metadata
-  - Create new posts
-  - Edit existing posts
-  - Delete posts (with confirmation)
-
-- **Dashboard**
-  - Summary metrics: total posts, unique authors, last activity
-  - Uses the posts API to derive stats
-
-- **API response UX**
-  - Dedicated `PostsShowcasePage` demonstrating:
-    - Skeleton loading state
-    - Empty state with CTA to create the first post
-    - Error state with retry handling
-
-- **Authentication**
-  - Backend endpoints for `POST /api/auth/signup` and `POST /api/auth/login`
-  - JWT utilities for issuing and verifying tokens
-  - Frontend `AuthContext` with `login`/`logout` and localStorage persistence
-  - UI for login, signup, and reset-password flows
-  - `ProtectedLayout` that redirects unauthenticated users to `/login`
-
-> **Note**: Some auth wiring (e.g. calling `auth.ts` from the form pages, protected API calls using the token, and a full `auth.middleware`) is still being connected; treat this as a work-in-progress.
-
----
-
-## Getting Started
+  - React 18
+  - Vite 5
+  - TypeScript
+  - React Router
+  - Tailwind CSS
+  - lucide‑react (icons)
+- **Backend**
+  - Node.js + Express
+  - TypeScript
+  - `bcryptjs` for password hashing
+  - `uuid` for user IDs
+  - File‑based JSON persistence (no external database required)
 
 ### Prerequisites
 
-- **Node.js** 18+ recommended
-- **npm** (bundled with Node)
+- **Node.js**: version 18 or newer is recommended
+- **npm** (or another Node package manager such as pnpm/yarn)
 
----
+### Getting started
 
-## Backend – `blog-api`
+#### 1. Clone the repository
 
-### Install dependencies
+```bash
+git clone <https://github.com/KomalGoel18/Blog_Platform>
+cd "Blog_Platform"
+```
+
+#### 2. Start the API (`blog-api`)
+
+In one terminal:
 
 ```bash
 cd blog-api
 npm install
-```
-
-### Run in development
-
-```bash
 npm run dev
 ```
 
-This will start the API on `http://localhost:3000`.
+This starts the Express API on `http://localhost:3000`.
 
-### Build and run in production mode
+#### 3. Start the frontend (`blog-frontend`)
 
-```bash
-npm run build
-npm start
-```
-
-### Test
-
-```bash
-npm test
-```
-
-### API Overview
-
-Base URL (dev): `http://localhost:3000`
-
-- **Posts**
-  - `GET /api/posts` – List posts (supports `page`, `limit`, `search`, `author` query params)
-  - `GET /api/posts/:id` – Get a single post by ID
-  - `POST /api/posts` – Create a post
-  - `PUT /api/posts/:id` – Update a post
-  - `DELETE /api/posts/:id` – Delete a post
-
-- **Auth**
-  - `POST /api/auth/signup` – Create a new user
-  - `POST /api/auth/login` – Log in and receive a JWT
-
-Posts and users are stored in `data/posts.json` and `data/users.json` respectively, which the API reads and writes as a lightweight JSON “database”.
-
----
-
-## Frontend – `blog-frontend`
-
-### Install dependencies
+In a second terminal:
 
 ```bash
 cd blog-frontend
 npm install
-```
-
-### Environment variables
-
-Create a `.env` file in `blog-frontend` (or `.env.local`) with:
-
-```bash
-VITE_API_BASE_URL=http://localhost:3000
-```
-
-This is used by `src/services/auth.ts` for auth requests. Requests to `/api/posts` are proxied by Vite to the backend (see `vite.config.ts`).
-
-### Run in development
-
-```bash
-cd blog-frontend
 npm run dev
 ```
 
-Vite will start the app (by default on `http://localhost:5173`). With the proxy and `VITE_API_BASE_URL` set, the frontend can talk to the backend at `http://localhost:3000`.
+By default Vite runs on `http://localhost:5173`.  
+The dev server is configured to proxy `/api` requests to `http://localhost:3000` (see `vite.config.ts`), so the frontend can call the API without additional configuration.
 
-### Build for production
+### Available scripts
 
-```bash
-npm run build
-```
+#### `blog-frontend`
 
-To preview a production build locally:
+- **`npm run dev`**: start the Vite dev server
+- **`npm run build`**: create a production build
+- **`npm run preview`**: preview the production build locally
+- **`npm run lint`**: run ESLint
+- **`npm run typecheck`**: run TypeScript type checking
 
-```bash
-npm run preview
-```
+#### `blog-api`
 
----
+- **`npm run dev`**: start the API in watch mode with `ts-node-dev`
+- **`npm run build`**: compile TypeScript to JavaScript
+- **`npm run start`**: run the compiled server from `dist/server.js`
+- **`npm run test`**: run the Jest test suite
 
-## How the Pieces Fit Together
+### API overview
 
-- The **frontend** uses:
-  - `ApiService` to call `/api/posts` for listing, detail view, creation, editing, and deletion.
-  - `auth.ts` to call `/api/auth/signup` and `/api/auth/login` (intended to be wired into the auth forms).
-  - `AuthContext` + `ProtectedLayout` to gate the main app behind login.
-- The **backend**:
-  - Exposes `/api/posts` and `/api/auth` off the same Express app.
-  - Uses JSON files for persistence to keep the project simple and self-contained.
+#### Posts
 
-Run both servers (API and frontend) simultaneously to get a full-stack blog platform with a dashboard-style UI.
+Base URL: `/api/posts`
 
----
+- **GET `/api/posts`**
+  - Returns a list of posts.
+  - Supports query parameters such as `page`, `limit`, `search`, and `author` (used by the frontend).
+- **GET `/api/posts/:id`**
+  - Returns a single post by numeric `id`.
+- **POST `/api/posts`**
+  - Creates a new post.
+  - Expects JSON body with at least `title` and `content` (and optional `author`).
+- **PUT `/api/posts/:id`**
+  - Updates an existing post’s `title` and/or `content`.
+- **DELETE `/api/posts/:id`**
+  - Deletes a post by `id`.
 
-## Future Improvements
+#### Auth
 
-- Wire the login/signup/reset-password UI to the real auth API and `AuthContext`
-- Implement and enable an `auth.middleware` to protect selected API routes with JWTs
-- Replace JSON file storage with a real database (e.g. Postgres, MongoDB, SQLite)
-- Add role-based permissions for content management
-- Expand analytics and settings pages with real data and configuration
+Base URL: `/api/auth`
+
+- **POST `/api/auth/signup`**
+  - Body: `{ "name": string, "email": string, "password": string }`
+  - Creates a new user with a hashed password and stores it in `data/users.json`.
+- **POST `/api/auth/login`**
+  - Body: `{ "email": string, "password": string }`
+  - Verifies the credentials against stored users.
+  - Returns basic user information if successful.
+
+### Data storage
+
+- Posts are stored in `blog-api/data/posts.json`.
+- Users are stored in `blog-api/data/users.json`.
+- Both are simple JSON files manipulated through the services and storage utilities.
 
 >>>>>>> d743a9f (Added README)
